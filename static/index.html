@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>Hello</title>
+
+        <link rel="stylesheet" type="text/css" href="css/style.css">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+        <script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha256-cCueBR6CsyA4/9szpPfrX3s49M9vUU5BgtiJj06wt/s=" crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.0.5/handlebars.min.js" type="text/javascript"></script>
+    </head>
+
+    <body>
+        <script id="tweet-template" type="text/x-handlebars-template">
+            <div class="tweet">
+                <div class="author"><strong>@{{User}}</strong></div>
+                <div class="body">
+                    {{Text}}
+                    <a href="javascript:showTweetOnMap('{{Id}}')">(show on map)</a>
+                </div>
+            </div>
+        </script>
+
+        <script type="text/javascript">
+            var tweetTemplate = Handlebars.compile($("#tweet-template").html());
+
+            var map,
+                markers = {};
+
+            function initMap() {
+                map = new google.maps.Map(document.getElementById('map'), {
+                    center: {lat: 48.5173849, lng: 10.6260291},
+                    zoom: 5
+                });
+            }
+
+            function clearMarkers() {
+                setMapOnAll(null);
+            }
+
+            function setMapOnAll(map) {
+                for (var tweetId in markers) {
+                    if (!markers.hasOwnProperty(tweetId)) continue;
+
+                    var marker = markers[tweetId];
+                    marker.setMap(map);
+                }
+            }
+
+            function addMarker(tweetId, location) {
+                var marker = new google.maps.Marker({
+                    position: location,
+                    map: map
+                });
+                markers[tweetId] = marker;
+            }
+
+            function showTweetOnMap(id) {
+                var marker = markers[id];
+                map.setCenter(marker.getPosition());
+                map.setZoom(9);
+            }
+
+            function showQueryMessage(query) {
+                $("#query-message").removeClass("hidden");
+                $("#query").text(query);
+                $("#stop-fetch").prop("disabled", false);
+            }
+
+            function showQueryForm() {
+                $("#query-form").removeClass("hidden");
+                $("#query-form input").val('').prop('disabled', false);
+                $("#query-form button").prop('disabled', false);
+            }
+
+            function fetchTweets() {
+                var socket = new WebSocket("ws://localhost:8080/tweets");
+
+                socket.onclose = function(event) {
+                    if (event.wasClean) {
+                        console.log('Соединение закрыто чисто');
+                    } else {
+                        console.log('Обрыв соединения');
+                    }
+                    $("#query-message").addClass("hidden");
+                    showQueryForm();
+                    $("#tweets").empty();
+                };
+
+                socket.onmessage = function(event) {
+                    var tweet = JSON.parse(event.data);
+                    console.log(tweet);
+                    $("#tweets").prepend(tweetTemplate(tweet)).hide().fadeIn("fast");
+
+                    var point = new google.maps.LatLng(tweet.Coordinates.Lat, tweet.Coordinates.Long);
+                    addMarker(tweet.Id, point);
+                };
+
+                socket.onerror = function(error) {
+                    console.log("Error: " + error.message);
+                };
+            }
+
+            function doFetch() {
+                var query = $("#query-form input").val();
+
+                if (query != '') {
+                    $("#query-form input").prop('disabled', true);
+                    $("#query-form button").prop('disabled', true);
+
+                    $.post("/fetch", query).done(function() {
+                        $("#query-form").addClass("hidden");
+                        showQueryMessage(query);
+                        fetchTweets();
+                    })
+                }
+            }
+
+            $(document).ready(function() {
+                $.get("/query").done(function(query) {
+                    if (query == "") {
+                        $("#query-form").removeClass("hidden");
+                    } else {
+                        showQueryMessage(query);
+                        fetchTweets();
+                    }
+                })
+
+                $("#do-fetch").on("click", doFetch)
+
+                $("#query-form input").on("keydown", function(e) {
+                    if (e.which == 13) {
+                        doFetch();
+                    }
+                })
+
+                $("#stop-fetch").on("click", function() {
+                    $(this).prop("disabled", true);
+
+                    $.post("/stop").done(function() {
+                        $("#query-message").addClass("hidden");
+                        showQueryForm();
+                        $("#tweets").empty();
+                        clearMarkers();
+                    })
+                })
+            })
+        </script>
+
+        <div class="row">
+            <div class="query-container">
+                <div id="query-form" class="hidden form-inline">
+                    <input type="text" class="form-control"/>
+                    <button id="do-fetch" class="btn btn-default">Fetch</button>
+                </div>
+
+                <div id="query-message" class="hidden">
+                    Fetching tweets for <span id="query"></span>
+                    <button id="stop-fetch" class="btn btn-default">Stop</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="row"">
+            <div class="col-md-4">
+                <div id="tweets"></div>
+            </div>
+            <div class="col-md-8">
+                <div id="map"></div>
+            </div>
+        </div>
+
+        <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDmquIrIAexcoO_iCF1Zz0DklQCUULgQJ0&callback=initMap" async defer></script>
+    </body>
+</html>
