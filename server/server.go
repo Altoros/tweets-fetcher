@@ -1,9 +1,10 @@
 package server
 
 import (
-	// "bytes"
+	"fmt"
 	"io/ioutil"
 	"net/http"
+	"text/template"
 
 	"github.com/gorilla/websocket"
 	log "github.com/inconshreveable/log15"
@@ -11,10 +12,14 @@ import (
 	"github.com/Altoros/tweets-fetcher/fetcher"
 )
 
-var upgrader = websocket.Upgrader{
-	ReadBufferSize:  1024,
-	WriteBufferSize: 1024,
-}
+var (
+	upgrader = websocket.Upgrader{
+		ReadBufferSize:  1024,
+		WriteBufferSize: 1024,
+	}
+
+	homeTemplate *template.Template
+)
 
 type server struct {
 	logger  log.Logger
@@ -42,15 +47,24 @@ func New(logger log.Logger, fetcher fetcher.Fetcher) Server {
 func (s *server) Start(errCh chan error) {
 	s.logger.Info("Starting server")
 
+	var err error
+
+	homeTemplate, err = template.New("home").Delims("{{{", "}}}").ParseFiles("home.html")
+	if err != nil {
+		errCh <- fmt.Errorf("Error parsing home template: %s", err)
+	}
+
 	s.fanout.Run()
 
-	http.Handle("/", http.FileServer(http.Dir("static")))
+	http.HandleFunc("/", s.homeHandler)
 	http.HandleFunc("/query", s.queryHandler)
 	http.HandleFunc("/fetch", s.fetchHandler)
 	http.HandleFunc("/stop", s.stopHandler)
 	http.HandleFunc("/tweets", s.tweetsWsHandler)
+	staticHandler := http.FileServer(http.Dir("static"))
+	http.Handle("/static/", http.StripPrefix("/static/", staticHandler))
 
-	err := http.ListenAndServe(":8080", nil)
+	err = http.ListenAndServe(":8080", nil)
 	if err != nil {
 		errCh <- err
 	}
@@ -59,6 +73,25 @@ func (s *server) Start(errCh chan error) {
 func (s *server) Stop() {
 	s.logger.Info("Stopping server")
 	s.fanout.UnregisterAll()
+}
+
+func (s *server) homeHandler(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("Home handler")
+	if r.URL.Path != "/" {
+		http.Error(w, "Not found", http.StatusNotFound)
+		return
+	}
+
+	if r.Method != "GET" {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	err := homeTemplate.ExecuteTemplate(w, "home.html", r.Host)
+	if err != nil {
+		s.logger.Error("Error rendering home page", "err", err)
+		http.Error(w, "Something went wrong", http.StatusInternalServerError)
+	}
 }
 
 func (s *server) queryHandler(w http.ResponseWriter, r *http.Request) {
