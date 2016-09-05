@@ -27,10 +27,12 @@
             var map,
                 markers = {};
 
+            var $tweets;
+
             function initMap() {
                 map = new google.maps.Map(document.getElementById('map'), {
                     center: {lat: 48.5173849, lng: 10.6260291},
-                    zoom: 5
+                    zoom: 4
                 });
             }
 
@@ -73,6 +75,13 @@
                 $("#query-form button").prop('disabled', false);
             }
 
+            function resetSearch() {
+                $("#query-message").addClass("hidden");
+                showQueryForm();
+                $tweets.empty();
+                clearMarkers();
+            }
+
             function fetchTweets() {
                 var socket = new WebSocket("ws://{{{$}}}/tweets");
 
@@ -82,15 +91,12 @@
                     } else {
                         console.log('Обрыв соединения');
                     }
-                    $("#query-message").addClass("hidden");
-                    showQueryForm();
-                    $("#tweets").empty();
+                    resetSearch();
                 };
 
                 socket.onmessage = function(event) {
                     var tweet = JSON.parse(event.data);
-                    console.log(tweet);
-                    $("#tweets").prepend(tweetTemplate(tweet)).hide().fadeIn("fast");
+                    $tweets.prepend(tweetTemplate(tweet)).hide().fadeIn("slow");
 
                     var point = new google.maps.LatLng(tweet.Coordinates.Lat, tweet.Coordinates.Long);
                     addMarker(tweet.Id, point);
@@ -101,7 +107,7 @@
                 };
             }
 
-            function doFetch() {
+            function onDoFetch() {
                 var query = $("#query-form input").val();
 
                 if (query != '') {
@@ -116,7 +122,17 @@
                 }
             }
 
+            function onStopFetch() {
+                $(this).prop("disabled", true);
+
+                $.post("/stop").done(function() {
+                    resetSearch();
+                })
+            }
+
             $(document).ready(function() {
+                $tweets = $("#tweets");
+
                 $.get("/query").done(function(query) {
                     if (query == "") {
                         $("#query-form").removeClass("hidden");
@@ -126,24 +142,15 @@
                     }
                 })
 
-                $("#do-fetch").on("click", doFetch)
+                $("#do-fetch").on("click", onDoFetch)
 
                 $("#query-form input").on("keydown", function(e) {
                     if (e.which == 13) {
-                        doFetch();
+                        onDoFetch();
                     }
                 })
 
-                $("#stop-fetch").on("click", function() {
-                    $(this).prop("disabled", true);
-
-                    $.post("/stop").done(function() {
-                        $("#query-message").addClass("hidden");
-                        showQueryForm();
-                        $("#tweets").empty();
-                        clearMarkers();
-                    })
-                })
+                $("#stop-fetch").on("click", onStopFetch);
             })
         </script>
 

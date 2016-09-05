@@ -21,9 +21,9 @@ type Fetcher interface {
 	CurrentQuery() string
 }
 
-func New(logger log.Logger) Fetcher {
-	config := oauth1.NewConfig("MHba5z4mb4l5kePtWrq9LnaIF", "40U9IO7daGfRyCmxRNKeRfhWFyto8PsVllg8exmbDtLxF76tQf")
-	token := oauth1.NewToken("96115591-MvlX96UkkLKolQhtOs3b8gVkZ1Y7vXMGxTLyGDYHS", "mnF46bAeQj9GjtSeFww94Ak37quWj2RRoVrakyy39FPpI")
+func New(logger log.Logger, opts Options) Fetcher {
+	config := oauth1.NewConfig(opts.TwitterConsumerKey, opts.TwitterConsumerSecret)
+	token := oauth1.NewToken(opts.TwitterAccessToken, opts.TwitterAccessSecret)
 	httpClient := config.Client(oauth1.NoContext, token)
 	twitterClient := twitter.NewClient(httpClient)
 
@@ -63,8 +63,8 @@ func (f *fetcher) Fetch(query string) {
 					}
 				}
 			case *twitter.StreamLimit:
-				panic("!!!")
 				f.logger.Warn("Stream limit", "track", v.Track)
+				panic("!!!")
 			}
 		}
 	}(f.currentStream)

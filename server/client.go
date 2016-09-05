@@ -96,6 +96,3 @@ func (c *Client) readPump() {
 		}
 	}
 }
-
-func (c *Client) close() {
-}

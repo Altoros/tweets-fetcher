@@ -28,7 +28,7 @@ type server struct {
 }
 
 type Server interface {
-	Start(chan error)
+	Start(chan error, string)
 	Stop()
 }
 
@@ -44,8 +44,8 @@ func New(logger log.Logger, fetcher fetcher.Fetcher) Server {
 	}
 }
 
-func (s *server) Start(errCh chan error) {
-	s.logger.Info("Starting server")
+func (s *server) Start(errCh chan error, port string) {
+	s.logger.Info("Starting server", "port", port)
 
 	var err error
 
@@ -64,7 +64,7 @@ func (s *server) Start(errCh chan error) {
 	staticHandler := http.FileServer(http.Dir("static"))
 	http.Handle("/static/", http.StripPrefix("/static/", staticHandler))
 
-	err = http.ListenAndServe(":8080", nil)
+	err = http.ListenAndServe(":"+port, nil)
 	if err != nil {
 		errCh <- err
 	}
