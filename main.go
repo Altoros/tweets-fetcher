@@ -44,7 +44,6 @@ func main() {
 func getPort() string {
 	if os.Getenv("PORT") == "" {
 		return defaultPort
-	} else {
-		return os.Getenv("PORT")
 	}
+	return os.Getenv("PORT")
 }
