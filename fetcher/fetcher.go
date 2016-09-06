@@ -61,6 +61,8 @@ func (f *fetcher) Fetch(query string) {
 							Lat:  message.Coordinates.Coordinates[1],
 						},
 					}
+				} else {
+					f.logger.Debug("Received a tweet without location, skipping")
 				}
 			case *twitter.StreamLimit:
 				f.logger.Warn("Stream limit", "track", v.Track)

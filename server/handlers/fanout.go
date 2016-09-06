@@ -1,12 +1,26 @@
-package server
+package handlers
 
 import (
 	"github.com/Altoros/tweets-fetcher/fetcher"
 )
 
+type Fanout interface {
+	Register(*Client)
+	Unregister(*Client)
+	Run()
+	UnregisterAll()
+}
+
 type fanout struct {
 	input   chan *fetcher.Tweet
 	clients map[*Client]bool
+}
+
+func NewFanout(input chan *fetcher.Tweet) Fanout {
+	return &fanout{
+		input:   input,
+		clients: make(map[*Client]bool),
+	}
 }
 
 func (f *fanout) Register(client *Client) {

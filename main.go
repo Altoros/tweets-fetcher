@@ -1,7 +1,6 @@
 package main
 
 import (
-	//"fmt"
 	"os"
 	"os/signal"
 
@@ -12,7 +11,7 @@ import (
 )
 
 var (
-	port = "8080"
+	defaultPort = "8080"
 )
 
 func main() {
@@ -26,12 +25,9 @@ func main() {
 		TwitterAccessSecret:   os.Getenv("TWITTER_CONSUMER_ACCESS_SECRET"),
 	})
 
-	if os.Getenv("PORT") != "" {
-		port = os.Getenv("PORT")
-	}
 	server := server.New(logger, fetcher)
 	errChan := make(chan error)
-	go server.Start(errChan, port)
+	go server.Start(errChan, getPort())
 
 	signalChan := make(chan os.Signal, 1)
 	signal.Notify(signalChan, os.Interrupt)
@@ -42,5 +38,13 @@ func main() {
 	case <-signalChan:
 		logger.Info("SIGINT caught, exiting")
 		server.Stop()
+	}
+}
+
+func getPort() string {
+	if os.Getenv("PORT") == "" {
+		return defaultPort
+	} else {
+		return os.Getenv("PORT")
 	}
 }
