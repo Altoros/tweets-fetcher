@@ -1,0 +1,5 @@
+## Running tests
+
+```
+./bin/test
+```
