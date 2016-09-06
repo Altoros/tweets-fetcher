@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"os"
 	"os/signal"
 
@@ -11,12 +12,20 @@ import (
 )
 
 var (
-	defaultPort = "8080"
+	defaultPort          = "8080"
+	requiredEnvVariables = []string{"TWITTER_CONSUMER_KEY", "TWITTER_CONSUMER_SECRET",
+		"TWITTER_CONSUMER_ACCESS_TOKEN", "TWITTER_CONSUMER_ACCESS_SECRET"}
 )
 
 func main() {
 	logger := log.New("module", "main")
 	logger.SetHandler(log.StreamHandler(os.Stdout, log.JsonFormat()))
+
+	err := checkReqiredEnvVariables()
+	if err != nil {
+		logger.Error(err.Error())
+		os.Exit(1)
+	}
 
 	fetcher := fetcher.New(logger, fetcher.Options{
 		TwitterConsumerKey:    os.Getenv("TWITTER_CONSUMER_KEY"),
@@ -46,4 +55,14 @@ func getPort() string {
 		return defaultPort
 	}
 	return os.Getenv("PORT")
+}
+
+func checkReqiredEnvVariables() error {
+	for _, variable := range requiredEnvVariables {
+		if os.Getenv(variable) == "" {
+			return fmt.Errorf("Env variable %s required, but is not set", variable)
+		}
+	}
+
+	return nil
 }
