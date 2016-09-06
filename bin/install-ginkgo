@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+
+set -e
+
+echo -e "\n Installing ginkgo..."
+go install ./vendor/github.com/onsi/ginkgo
