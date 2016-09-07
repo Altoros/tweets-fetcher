@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	// "fmt"
 	"io/ioutil"
 	"net/http"
 	"path/filepath"
@@ -17,6 +16,7 @@ var (
 	upgrader = websocket.Upgrader{
 		ReadBufferSize:  1024,
 		WriteBufferSize: 1024,
+		CheckOrigin:     func(r *http.Request) bool { return true },
 	}
 
 	homeTemplate *template.Template
@@ -108,6 +108,7 @@ func (h *fetcherHandler) tweets(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		h.logger.Error("Error upgrading websocket", "err", err)
 		w.WriteHeader(http.StatusInternalServerError)
+		return
 	}
 
 	h.logger.Info("New client connected")

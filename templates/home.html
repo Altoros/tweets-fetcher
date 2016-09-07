@@ -83,15 +83,15 @@
             }
 
             function fetchTweets() {
-                var socket = new WebSocket("ws://{{{$}}}/tweets");
+                var socket = new WebSocket("wss://{{{$}}}:4443/tweets");
 
                 socket.onclose = function(event) {
                     if (event.wasClean) {
                         console.log('Соединение закрыто чисто');
+                        resetSearch();
                     } else {
                         console.log('Обрыв соединения');
                     }
-                    resetSearch();
                 };
 
                 socket.onmessage = function(event) {
@@ -103,7 +103,7 @@
                 };
 
                 socket.onerror = function(error) {
-                    console.log("Error: " + error.message);
+                    $tweets.prepend("<div style=\"text-align: center\">Can not connect to the stream</div>");
                 };
             }
 
