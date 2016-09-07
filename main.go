@@ -14,6 +14,7 @@ import (
 
 var (
 	defaultPort          = "8080"
+	defaultLogLevel      = log.LvlInfo
 	requiredEnvVariables = []string{
 		"TWITTER_CONSUMER_KEY",
 		"TWITTER_CONSUMER_SECRET",
@@ -24,7 +25,7 @@ var (
 
 func main() {
 	logger := log.New("module", "main")
-	logger.SetHandler(log.StreamHandler(os.Stdout, log.JsonFormat()))
+	logger.SetHandler(log.LvlFilterHandler(getloggerLvl(), log.StreamHandler(os.Stdout, log.JsonFormat())))
 
 	var err error
 
@@ -69,6 +70,15 @@ func getPort() string {
 		return defaultPort
 	}
 	return os.Getenv("PORT")
+}
+
+func getloggerLvl() log.Lvl {
+	levelStr := os.Getenv("LOG_LEVEL")
+	lvl, err := log.LvlFromString(levelStr)
+	if err != nil {
+		return defaultLogLevel
+	}
+	return lvl
 }
 
 func checkReqiredEnvVariables() error {
