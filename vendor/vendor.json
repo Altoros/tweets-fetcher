@@ -255,6 +255,18 @@
 			"revisionTime": "2015-10-07T03:56:56Z"
 		},
 		{
+			"checksumSHA1": "7ujoGY2deug5Ak90F+o4ox0+xkM=",
+			"path": "github.com/quipo/statsd",
+			"revision": "494c2067718d0c58116be15337f466e393273617",
+			"revisionTime": "2016-03-21T18:51:20Z"
+		},
+		{
+			"checksumSHA1": "08QvqIFShxjHn3mTWwXVCq+aqY8=",
+			"path": "github.com/quipo/statsd/event",
+			"revision": "494c2067718d0c58116be15337f466e393273617",
+			"revisionTime": "2016-03-21T18:51:20Z"
+		},
+		{
 			"checksumSHA1": "hKZGpbFuCrkE4s1vxubKK1aFlfI=",
 			"path": "golang.org/x/net/context",
 			"revision": "db8e4de5b2d6653f66aea53094624468caad15d2",

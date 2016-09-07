@@ -4,6 +4,7 @@ import (
 	"github.com/dghubble/go-twitter/twitter"
 	"github.com/dghubble/oauth1"
 	log "github.com/inconshreveable/log15"
+	"github.com/quipo/statsd"
 )
 
 type fetcher struct {
@@ -12,6 +13,7 @@ type fetcher struct {
 	twitterClient *twitter.Client
 	currentStream *twitter.Stream
 	tweets        chan *Tweet
+	statsdClient  statsd.Statsd
 }
 
 type Fetcher interface {
@@ -21,7 +23,7 @@ type Fetcher interface {
 	CurrentQuery() string
 }
 
-func New(logger log.Logger, opts Options) Fetcher {
+func New(logger log.Logger, statsdClient statsd.Statsd, opts Options) Fetcher {
 	config := oauth1.NewConfig(opts.TwitterConsumerKey, opts.TwitterConsumerSecret)
 	token := oauth1.NewToken(opts.TwitterAccessToken, opts.TwitterAccessSecret)
 	httpClient := config.Client(oauth1.NoContext, token)
@@ -31,6 +33,7 @@ func New(logger log.Logger, opts Options) Fetcher {
 		logger:        logger.New("module", "fetcher"),
 		twitterClient: twitterClient,
 		tweets:        make(chan *Tweet),
+		statsdClient:  statsdClient,
 	}
 }
 
@@ -46,27 +49,34 @@ func (f *fetcher) Fetch(query string) {
 	}
 
 	go func(stream *twitter.Stream) {
-		for untypedMessage := range stream.Messages {
-			switch v := untypedMessage.(type) {
+		for message := range stream.Messages {
+			switch v := message.(type) {
 			case *twitter.Tweet:
-				message := v
-				if message.Coordinates != nil {
-					f.logger.Debug("Received a tweet", "text", message.Text, "coordinates", message.Coordinates.Coordinates)
+				err := f.statsdClient.Incr("totalTweets", 1)
+				if err != nil {
+					f.logger.Warn("Failed to emit metric", "err", err)
+				}
+				tweet := v
+				if tweet.Coordinates != nil {
+					f.logger.Debug("Received a tweet", "text", tweet.Text, "coordinates", tweet.Coordinates.Coordinates)
 					f.tweets <- &Tweet{
-						Id:   message.IDStr,
-						Text: message.Text,
-						User: message.User.ScreenName,
+						Id:   tweet.IDStr,
+						Text: tweet.Text,
+						User: tweet.User.ScreenName,
 						Coordinates: Coordinates{
-							Long: message.Coordinates.Coordinates[0],
-							Lat:  message.Coordinates.Coordinates[1],
+							Long: tweet.Coordinates.Coordinates[0],
+							Lat:  tweet.Coordinates.Coordinates[1],
 						},
+					}
+					err := f.statsdClient.Incr("tweetsWithLocation", 1)
+					if err != nil {
+						f.logger.Warn("Failed to emit metric", "err", err)
 					}
 				} else {
 					f.logger.Debug("Received a tweet without location, skipping")
 				}
 			case *twitter.StreamLimit:
 				f.logger.Warn("Stream limit", "track", v.Track)
-				panic("!!!")
 			}
 		}
 	}(f.currentStream)

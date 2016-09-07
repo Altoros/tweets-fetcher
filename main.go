@@ -6,6 +6,7 @@ import (
 	"os/signal"
 
 	log "github.com/inconshreveable/log15"
+	"github.com/quipo/statsd"
 
 	"github.com/Altoros/tweets-fetcher/fetcher"
 	"github.com/Altoros/tweets-fetcher/server"
@@ -13,21 +14,34 @@ import (
 
 var (
 	defaultPort          = "8080"
-	requiredEnvVariables = []string{"TWITTER_CONSUMER_KEY", "TWITTER_CONSUMER_SECRET",
-		"TWITTER_CONSUMER_ACCESS_TOKEN", "TWITTER_CONSUMER_ACCESS_SECRET"}
+	requiredEnvVariables = []string{
+		"TWITTER_CONSUMER_KEY",
+		"TWITTER_CONSUMER_SECRET",
+		"TWITTER_CONSUMER_ACCESS_TOKEN",
+		"TWITTER_CONSUMER_ACCESS_SECRET",
+	}
 )
 
 func main() {
 	logger := log.New("module", "main")
 	logger.SetHandler(log.StreamHandler(os.Stdout, log.JsonFormat()))
 
-	err := checkReqiredEnvVariables()
+	var err error
+
+	err = checkReqiredEnvVariables()
 	if err != nil {
 		logger.Error(err.Error())
 		os.Exit(1)
 	}
 
-	fetcher := fetcher.New(logger, fetcher.Options{
+	statsdClient := statsdClient()
+	err = statsdClient.CreateSocket()
+	if err != nil {
+		logger.Error("Failed to create statsd socket", "err", err)
+		os.Exit(1)
+	}
+
+	fetcher := fetcher.New(logger, statsdClient, fetcher.Options{
 		TwitterConsumerKey:    os.Getenv("TWITTER_CONSUMER_KEY"),
 		TwitterConsumerSecret: os.Getenv("TWITTER_CONSUMER_SECRET"),
 		TwitterAccessToken:    os.Getenv("TWITTER_CONSUMER_ACCESS_TOKEN"),
@@ -65,4 +79,8 @@ func checkReqiredEnvVariables() error {
 	}
 
 	return nil
+}
+
+func statsdClient() statsd.Statsd {
+	return &statsd.NoopClient{}
 }
