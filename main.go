@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"os/signal"
+	"syscall"
 
 	log "github.com/inconshreveable/log15"
 	"github.com/quipo/statsd"
@@ -54,13 +55,13 @@ func main() {
 	go server.Start(errChan, getPort())
 
 	signalChan := make(chan os.Signal, 1)
-	signal.Notify(signalChan, os.Interrupt)
+	signal.Notify(signalChan, os.Interrupt, os.Kill, syscall.SIGTERM)
 
 	select {
 	case err := <-errChan:
 		logger.Error("Start server", "err", err)
-	case <-signalChan:
-		logger.Info("SIGINT caught, exiting")
+	case sig := <-signalChan:
+		logger.Info(fmt.Sprintf("Received signal %s. shutting down", sig))
 		server.Stop()
 	}
 }
