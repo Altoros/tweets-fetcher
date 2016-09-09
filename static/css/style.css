@@ -10,6 +10,13 @@ html, body {
     height: 700px;
 }
 
+#tweets {
+    height: 700px;
+    overflow-y: auto;
+    padding-right: 10px;
+    padding-left: 10px;
+}
+
 .query-container {
     width: 400px;
     margin: auto;

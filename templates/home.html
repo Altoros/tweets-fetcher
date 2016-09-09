@@ -87,10 +87,11 @@
 
                 socket.onclose = function(event) {
                     if (event.wasClean) {
-                        console.log('Соединение закрыто чисто');
+                        console.log('Connection closed clean');
                         resetSearch();
                     } else {
-                        console.log('Обрыв соединения');
+                        $tweets.prepend("<div style=\"text-align: center\">Disconnected, trying to reconnect</div>");
+                        getCurrentQuery();
                     }
                 };
 
@@ -130,17 +131,21 @@
                 })
             }
 
-            $(document).ready(function() {
-                $tweets = $("#tweets");
-
+            function getCurrentQuery() {
                 $.get("/query").done(function(query) {
                     if (query == "") {
-                        $("#query-form").removeClass("hidden");
+                        resetSearch();
                     } else {
                         showQueryMessage(query);
                         fetchTweets();
                     }
                 })
+            }
+
+            $(document).ready(function() {
+                $tweets = $("#tweets");
+
+                getCurrentQuery();
 
                 $("#do-fetch").on("click", onDoFetch)
 
