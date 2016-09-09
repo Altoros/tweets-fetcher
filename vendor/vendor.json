@@ -105,6 +105,48 @@
 			"revisionTime": "2015-10-08T04:42:56Z"
 		},
 		{
+			"checksumSHA1": "qmlMYK6untubgQOaLZcnPin9BxM=",
+			"path": "github.com/onsi/ginkgo/ginkgo",
+			"revision": "7b6efc7d7b052568b49ac02d3141c9d7a5a494a4",
+			"revisionTime": "2016-09-01T20:24:51Z"
+		},
+		{
+			"checksumSHA1": "RX2QA4mqBzsogy4OWOCi9mUfAGU=",
+			"path": "github.com/onsi/ginkgo/ginkgo/convert",
+			"revision": "7b6efc7d7b052568b49ac02d3141c9d7a5a494a4",
+			"revisionTime": "2016-09-01T20:24:51Z"
+		},
+		{
+			"checksumSHA1": "jvjomLV3JcWQ1qa1ZfmvB4/62YI=",
+			"path": "github.com/onsi/ginkgo/ginkgo/interrupthandler",
+			"revision": "7b6efc7d7b052568b49ac02d3141c9d7a5a494a4",
+			"revisionTime": "2016-09-01T20:24:51Z"
+		},
+		{
+			"checksumSHA1": "brZ63GMMr79P/RwClxFRBKMtICg=",
+			"path": "github.com/onsi/ginkgo/ginkgo/nodot",
+			"revision": "7b6efc7d7b052568b49ac02d3141c9d7a5a494a4",
+			"revisionTime": "2016-09-01T20:24:51Z"
+		},
+		{
+			"checksumSHA1": "olBjLJhaTkZzYCWKhT1fWdFYKww=",
+			"path": "github.com/onsi/ginkgo/ginkgo/testrunner",
+			"revision": "7b6efc7d7b052568b49ac02d3141c9d7a5a494a4",
+			"revisionTime": "2016-09-01T20:24:51Z"
+		},
+		{
+			"checksumSHA1": "JETGgNLp7Z2hlHH7xkqqaM7w1qk=",
+			"path": "github.com/onsi/ginkgo/ginkgo/testsuite",
+			"revision": "7b6efc7d7b052568b49ac02d3141c9d7a5a494a4",
+			"revisionTime": "2016-09-01T20:24:51Z"
+		},
+		{
+			"checksumSHA1": "EZTrKh8zPpIkRugXna/dPlS84kw=",
+			"path": "github.com/onsi/ginkgo/ginkgo/watch",
+			"revision": "7b6efc7d7b052568b49ac02d3141c9d7a5a494a4",
+			"revisionTime": "2016-09-01T20:24:51Z"
+		},
+		{
 			"checksumSHA1": "T1cZh3UWr4Hnx6fQYp+7KDNvxG4=",
 			"path": "github.com/onsi/ginkgo/internal/codelocation",
 			"revision": "39d2c24f8a92c88f7e7f4d8ec6c80d3cc8f5ac65",
