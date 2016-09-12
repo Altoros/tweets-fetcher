@@ -32,7 +32,7 @@
             function initMap() {
                 map = new google.maps.Map(document.getElementById('map'), {
                     center: {lat: 48.5173849, lng: 10.6260291},
-                    zoom: 4
+                    zoom: 2
                 });
             }
 
@@ -83,7 +83,7 @@
             }
 
             function fetchTweets() {
-                var socket = new WebSocket("wss://{{{$}}}:4443/tweets");
+                var socket = new WebSocket("ws://{{{$}}}/tweets");
 
                 socket.onclose = function(event) {
                     if (event.wasClean) {
@@ -97,7 +97,7 @@
 
                 socket.onmessage = function(event) {
                     var tweet = JSON.parse(event.data);
-                    $tweets.prepend(tweetTemplate(tweet)).hide().fadeIn("slow");
+                    $tweets.prepend(tweetTemplate(tweet)).hide().fadeIn("fast");
 
                     var point = new google.maps.LatLng(tweet.Coordinates.Lat, tweet.Coordinates.Long);
                     addMarker(tweet.Id, point);
@@ -174,7 +174,8 @@
         </div>
 
         <div class="row"">
-            <div class="col-md-4">
+            <div class="col-md-4 tweets-container">
+                <h2>Tweets</h2>
                 <div id="tweets"></div>
             </div>
             <div class="col-md-8">

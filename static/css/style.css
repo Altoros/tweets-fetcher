@@ -10,6 +10,14 @@ html, body {
     height: 700px;
 }
 
+.tweets-container h2 {
+    text-align: center;
+    font-size: 2em;
+    border-bottom: dashed 1px #999;
+    padding-bottom: 10px
+    color: #999;
+}
+
 #tweets {
     height: 700px;
     overflow-y: auto;

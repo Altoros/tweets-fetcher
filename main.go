@@ -6,13 +6,19 @@ import (
 	"os/signal"
 	"syscall"
 
+	"github.com/cloudfoundry-community/go-cfenv"
 	"github.com/dghubble/go-twitter/twitter"
 	"github.com/dghubble/oauth1"
 	log "github.com/inconshreveable/log15"
 	"github.com/quipo/statsd"
+	"googlemaps.github.io/maps"
 
 	"github.com/Altoros/tweets-fetcher/fetcher"
 	"github.com/Altoros/tweets-fetcher/server"
+)
+
+const (
+	statsdServiceName = "admin-demo-statsd"
 )
 
 var (
@@ -23,6 +29,7 @@ var (
 		"TWITTER_CONSUMER_SECRET",
 		"TWITTER_CONSUMER_ACCESS_TOKEN",
 		"TWITTER_CONSUMER_ACCESS_SECRET",
+		"GOOGLE_MAPS_KEY",
 	}
 )
 
@@ -51,7 +58,14 @@ func main() {
 		os.Getenv("TWITTER_CONSUMER_ACCESS_TOKEN"),
 		os.Getenv("TWITTER_CONSUMER_ACCESS_SECRET"),
 	)
-	fetcher := fetcher.New(logger, twitterClient, statsdClient)
+
+	googleMapsClient, err := maps.NewClient(maps.WithAPIKey(os.Getenv("GOOGLE_MAPS_KEY")))
+	if err != nil {
+		logger.Error("Failed to create google maps API client", "err", err)
+		os.Exit(1)
+	}
+
+	fetcher := fetcher.New(logger, twitterClient, statsdClient, googleMapsClient)
 
 	server := server.New(logger, fetcher)
 	errChan := make(chan error)
@@ -96,7 +110,19 @@ func checkReqiredEnvVariables() error {
 }
 
 func statsdClient() statsd.Statsd {
-	return &statsd.NoopClient{}
+	appEnv, err := cfenv.Current()
+	if err != nil {
+		return &statsd.NoopClient{}
+	}
+	service, err := appEnv.Services.WithName(statsdServiceName)
+	if err != nil {
+		return &statsd.NoopClient{}
+	}
+
+	host := service.Credentials["host"]
+	port := service.Credentials["port"]
+
+	return statsd.NewStatsdClient(fmt.Sprintf("%s:%s", host, port), "")
 }
 
 func twitterClient(consumerKey, consumerSecret, accessToken, accessSecret string) *twitter.Client {
