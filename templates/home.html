@@ -83,7 +83,7 @@
             }
 
             function fetchTweets() {
-                var socket = new WebSocket("ws://{{{$}}}/tweets");
+                var socket = new WebSocket("wss://{{{$}}}:4443/tweets");
 
                 socket.onclose = function(event) {
                     if (event.wasClean) {
