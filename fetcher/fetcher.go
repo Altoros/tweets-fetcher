@@ -2,7 +2,6 @@ package fetcher
 
 import (
 	"github.com/dghubble/go-twitter/twitter"
-	"github.com/dghubble/oauth1"
 	log "github.com/inconshreveable/log15"
 	"github.com/quipo/statsd"
 )
@@ -23,12 +22,7 @@ type Fetcher interface {
 	CurrentQuery() string
 }
 
-func New(logger log.Logger, statsdClient statsd.Statsd, opts Options) Fetcher {
-	config := oauth1.NewConfig(opts.TwitterConsumerKey, opts.TwitterConsumerSecret)
-	token := oauth1.NewToken(opts.TwitterAccessToken, opts.TwitterAccessSecret)
-	httpClient := config.Client(oauth1.NoContext, token)
-	twitterClient := twitter.NewClient(httpClient)
-
+func New(logger log.Logger, twitterClient *twitter.Client, statsdClient statsd.Statsd) Fetcher {
 	return &fetcher{
 		logger:        logger.New("module", "fetcher"),
 		twitterClient: twitterClient,

@@ -6,6 +6,8 @@ import (
 	"os/signal"
 	"syscall"
 
+	"github.com/dghubble/go-twitter/twitter"
+	"github.com/dghubble/oauth1"
 	log "github.com/inconshreveable/log15"
 	"github.com/quipo/statsd"
 
@@ -43,12 +45,13 @@ func main() {
 		os.Exit(1)
 	}
 
-	fetcher := fetcher.New(logger, statsdClient, fetcher.Options{
-		TwitterConsumerKey:    os.Getenv("TWITTER_CONSUMER_KEY"),
-		TwitterConsumerSecret: os.Getenv("TWITTER_CONSUMER_SECRET"),
-		TwitterAccessToken:    os.Getenv("TWITTER_CONSUMER_ACCESS_TOKEN"),
-		TwitterAccessSecret:   os.Getenv("TWITTER_CONSUMER_ACCESS_SECRET"),
-	})
+	twitterClient := twitterClient(
+		os.Getenv("TWITTER_CONSUMER_KEY"),
+		os.Getenv("TWITTER_CONSUMER_SECRET"),
+		os.Getenv("TWITTER_CONSUMER_ACCESS_TOKEN"),
+		os.Getenv("TWITTER_CONSUMER_ACCESS_SECRET"),
+	)
+	fetcher := fetcher.New(logger, twitterClient, statsdClient)
 
 	server := server.New(logger, fetcher)
 	errChan := make(chan error)
@@ -94,4 +97,11 @@ func checkReqiredEnvVariables() error {
 
 func statsdClient() statsd.Statsd {
 	return &statsd.NoopClient{}
+}
+
+func twitterClient(consumerKey, consumerSecret, accessToken, accessSecret string) *twitter.Client {
+	config := oauth1.NewConfig(consumerKey, consumerSecret)
+	token := oauth1.NewToken(accessToken, accessSecret)
+	httpClient := config.Client(oauth1.NoContext, token)
+	return twitter.NewClient(httpClient)
 }
