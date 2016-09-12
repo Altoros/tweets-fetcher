@@ -33,6 +33,12 @@
 			"revisionTime": "2016-06-10T10:09:12Z"
 		},
 		{
+			"checksumSHA1": "rPRI0+h7jvHTOtdZqpgSxSsUgiU=",
+			"path": "github.com/cloudfoundry-community/go-cfenv",
+			"revision": "c567d77dab8551bc4077e68e5a04415f1d74a911",
+			"revisionTime": "2016-07-25T23:41:13Z"
+		},
+		{
 			"checksumSHA1": "TrSXHZ9ZifqUn2nPl/259/LLOQo=",
 			"path": "github.com/dghubble/go-twitter/twitter",
 			"revision": "536f41ba9ebcee721411517767a6f56b54b4ab65",
@@ -91,6 +97,12 @@
 			"path": "github.com/mattn/go-isatty",
 			"revision": "66b8e73f3f5cda9f96b69efd03dd3d7fc4a5cdb8",
 			"revisionTime": "2016-08-06T12:27:52Z"
+		},
+		{
+			"checksumSHA1": "4Js6Jlu93Wa0o6Kjt393L9Z7diE=",
+			"path": "github.com/mitchellh/mapstructure",
+			"revision": "281073eb9eb092240d33ef253c404f1cca550309",
+			"revisionTime": "2015-07-17T05:11:58Z"
 		},
 		{
 			"checksumSHA1": "5gUkw5ZmyCH8FDQ9AEyUuWg7QVo=",
@@ -313,6 +325,24 @@
 			"path": "golang.org/x/net/context",
 			"revision": "db8e4de5b2d6653f66aea53094624468caad15d2",
 			"revisionTime": "2015-08-24T16:07:02Z"
+		},
+		{
+			"checksumSHA1": "GNnwCoCCsZTbfmQsw7A7eIf++Ms=",
+			"path": "golang.org/x/net/context/ctxhttp",
+			"revision": "db8e4de5b2d6653f66aea53094624468caad15d2",
+			"revisionTime": "2015-08-24T16:07:02Z"
+		},
+		{
+			"checksumSHA1": "px74ysa3Eg3RQj5YdM7fz9TkPfA=",
+			"path": "googlemaps.github.io/maps",
+			"revision": "ce8994f7a138534e9da9fd27c5424eeea20ac563",
+			"revisionTime": "2016-08-30T05:06:11Z"
+		},
+		{
+			"checksumSHA1": "T47E4DD/+UCGq0rAc70yGCEWJ0w=",
+			"path": "googlemaps.github.io/maps/internal",
+			"revision": "ce8994f7a138534e9da9fd27c5424eeea20ac563",
+			"revisionTime": "2016-08-30T05:06:11Z"
 		}
 	],
 	"rootPath": "github.com/Altoros/tweets-fetcher"
