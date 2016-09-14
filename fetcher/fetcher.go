@@ -1,6 +1,8 @@
 package fetcher
 
 import (
+	"fmt"
+
 	"github.com/dghubble/go-twitter/twitter"
 	log "github.com/inconshreveable/log15"
 	"github.com/quipo/statsd"
@@ -99,7 +101,7 @@ func (f *fetcher) startConsumingCurrentStream() {
 func (f *fetcher) processTweet(tweet *twitter.Tweet) {
 	err := f.statsdClient.Incr("totalTweets", 1)
 	if err != nil {
-		f.logger.Warn("Failed to emit metric", "err", err)
+		f.logger.Warn("Failed to emit metric totalTweets", "err", err)
 	}
 	if tweet.Coordinates != nil {
 		f.logger.Debug("Received a tweet", "text", tweet.Text, "coordinates", tweet.Coordinates.Coordinates)
@@ -108,7 +110,7 @@ func (f *fetcher) processTweet(tweet *twitter.Tweet) {
 		if err != nil {
 			f.logger.Warn("Failed to geocode coordinates to country", "err", err)
 		} else {
-			f.logger.Debug(country)
+			f.statsdClient.Incr(fmt.Sprintf("countries.%s", country), 1)
 		}
 
 		f.tweets <- &Tweet{
@@ -120,9 +122,14 @@ func (f *fetcher) processTweet(tweet *twitter.Tweet) {
 				Lat:  tweet.Coordinates.Coordinates[1],
 			},
 		}
+
 		err = f.statsdClient.Incr("tweetsWithLocation", 1)
 		if err != nil {
-			f.logger.Warn("Failed to emit metric", "err", err)
+			f.logger.Warn("Failed to emit metric tweetsWithLocation", "err", err)
+		}
+		err = f.statsdClient.Incr("tweetLength", int64(len(tweet.Text)))
+		if err != nil {
+			f.logger.Warn("Failed to emit metric tweetLength", "err", err)
 		}
 	} else {
 		f.logger.Debug("Received a tweet without location, skipping")

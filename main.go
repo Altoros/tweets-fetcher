@@ -122,7 +122,7 @@ func statsdClient() statsd.Statsd {
 	host := service.Credentials["host"]
 	port := service.Credentials["port"]
 
-	return statsd.NewStatsdClient(fmt.Sprintf("%s:%s", host, port), fmt.Sprintf("%s.%d", appEnv.Name, appEnv.Index))
+	return statsd.NewStatsdClient(fmt.Sprintf("%s:%s", host, port), fmt.Sprintf("%s.%d.", appEnv.Name, appEnv.Index))
 }
 
 func twitterClient(consumerKey, consumerSecret, accessToken, accessSecret string) *twitter.Client {
