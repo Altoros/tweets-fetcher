@@ -1,0 +1,4 @@
+#!/bin/bash -e
+
+fly -t concourse set-pipeline --pipeline cf-tweets-fetcher-app --config pipeline.yml --load-vars-from secrets.yml
+fly -t concourse unpause-pipeline --pipeline cf-tweets-fetcher-app

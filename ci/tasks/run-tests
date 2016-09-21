@@ -1,0 +1,10 @@
+#!/usr/local/bin/dumb-init /bin/bash
+
+set -xe
+
+mkdir -p ${GOPATH}/src/github.com/Altoros/tweets-fetcher
+cp -r app-source/* ${GOPATH}/src/github.com/Altoros/tweets-fetcher
+
+cd ${GOPATH}/src/github.com/Altoros/tweets-fetcher
+go install -v github.com/Altoros/tweets-fetcher/vendor/github.com/onsi/ginkgo/ginkgo
+bin/test-unit

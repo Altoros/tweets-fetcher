@@ -1,0 +1,11 @@
+applications:
+- name: tweets-fetcher
+  memory: 128M
+  instances: 1
+  buildpack: go_buildpack
+  path: /tmp/build/put/app-source
+  command: tweets-fetcher
+  env:
+   GOPACKAGENAME: github.com/Altoros/tweets-fetcher
+   LOG_LEVEL: debug
+

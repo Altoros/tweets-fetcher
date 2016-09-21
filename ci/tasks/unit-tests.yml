@@ -1,0 +1,14 @@
+---
+platform: linux
+
+image_resource:
+  type: docker-image
+  source:
+    repository: andreikrasnitski/tweets-fetcher
+    tag: "latest"
+
+inputs:
+- name: app-source
+
+run:
+  path: app-source/ci/tasks/run-tests
