@@ -22,7 +22,7 @@ jobs:
         channel:  {{slack-channel}}
         username: Concourse CI
         icon_url: https://i.imgur.com/eioobYI.png
-        text:     {{slack-text}}
+        text:     {{slack-failed-text}}
 - name: deploy-application
   serial: true
   public: true
@@ -46,7 +46,7 @@ jobs:
         channel:  {{slack-channel}}
         username: Concourse CI
         icon_url: https://i.imgur.com/eioobYI.png
-        text:     {{slack-text}}
+        text:     {{slack-failed-text}}
 - name: tag
   public: true
   serial: true
@@ -68,7 +68,7 @@ jobs:
         channel:  {{slack-channel}}
         username: Concourse CI
         icon_url: https://i.imgur.com/eioobYI.png
-        text:     {{slack-text}}
+        text:     {{slack-failed-text}}
 - name: github-release
   public: true
   serial: true
@@ -82,13 +82,20 @@ jobs:
     params:
       name: version/number
       tag: version/number
+    on_success:
+      put: announcement
+      params:
+        channel:  {{slack-channel}}
+        username: Concourse CI
+        icon_url: https://i.imgur.com/eioobYI.png
+        text:     {{slack-failed-text}}
     on_failure:
       put: failure-alert
       params:
         channel:  {{slack-channel}}
         username: Concourse CI
         icon_url: https://i.imgur.com/eioobYI.png
-        text:     {{slack-text}}
+        text:     {{slack-success-text}}
 
 resources:
 - name: app-source
@@ -98,6 +105,10 @@ resources:
     branch: master
     private_key: {{github-private-key}}
 - name: failure-alert
+  type: slack-notification
+  source:
+    url: {{slack-url}}
+- name: announcement
   type: slack-notification
   source:
     url: {{slack-url}}
