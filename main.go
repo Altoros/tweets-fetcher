@@ -45,7 +45,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	statsdClient := statsdClient()
+	statsdClient := statsdClient(logger)
 	err = statsdClient.CreateSocket()
 	if err != nil {
 		logger.Error("Failed to create statsd socket", "err", err)
@@ -109,13 +109,15 @@ func checkReqiredEnvVariables() error {
 	return nil
 }
 
-func statsdClient() statsd.Statsd {
+func statsdClient(logger log.Logger) statsd.Statsd {
 	appEnv, err := cfenv.Current()
 	if err != nil {
+		logger.Warn("Failed to get CF env, continuing with noop statsd client", "err", err)
 		return &statsd.NoopClient{}
 	}
 	service, err := appEnv.Services.WithName(statsdServiceName)
 	if err != nil {
+		logger.Warn(fmt.Sprintf("Couldn't find statsd service '%s', continuing with noop statsd client", statsdServiceName), "err", err)
 		return &statsd.NoopClient{}
 	}
 

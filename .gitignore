@@ -1,5 +1,5 @@
 .idea
 *.iml
 .envrc
-
 ci/secrets.yml
+out/
