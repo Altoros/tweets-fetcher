@@ -115,7 +115,7 @@ func (f *fetcher) processTweet(tweet *twitter.Tweet) {
 			f.logger.Warn("Failed to geocode coordinates to country", "err", err)
 		} else {
 			f.statsdClient.Incr(fmt.Sprintf("countries.%s", country), 1)
-			f.statsdClient.Incr("googleApiRequestTime", elapsed.Nanoseconds()/1000000)
+			f.statsdClient.Timing("googleApiRequestTime", elapsed.Nanoseconds()/1000000)
 		}
 
 		f.tweets <- &Tweet{
