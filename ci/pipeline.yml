@@ -88,14 +88,14 @@ jobs:
         channel:  {{slack-channel}}
         username: Concourse CI
         icon_url: https://i.imgur.com/eioobYI.png
-        text:     {{slack-failed-text}}
+        text:     {{slack-success-text}}
     on_failure:
       put: failure-alert
       params:
         channel:  {{slack-channel}}
         username: Concourse CI
         icon_url: https://i.imgur.com/eioobYI.png
-        text:     {{slack-success-text}}
+        text:     {{slack-failed-text}}
 
 resources:
 - name: app-source
