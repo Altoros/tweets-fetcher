@@ -2,6 +2,7 @@ package fetcher
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/dghubble/go-twitter/twitter"
 	log "github.com/inconshreveable/log15"
@@ -106,11 +107,15 @@ func (f *fetcher) processTweet(tweet *twitter.Tweet) {
 	if tweet.Coordinates != nil {
 		f.logger.Debug("Received a tweet", "text", tweet.Text, "coordinates", tweet.Coordinates.Coordinates)
 
+		start := time.Now()
 		country, err := f.geocoder.Country(tweet.Coordinates.Coordinates[1], tweet.Coordinates.Coordinates[0])
+		elapsed := time.Since(start)
+
 		if err != nil {
 			f.logger.Warn("Failed to geocode coordinates to country", "err", err)
 		} else {
 			f.statsdClient.Incr(fmt.Sprintf("countries.%s", country), 1)
+			f.statsdClient.Incr("googleApiRequestTime", elapsed.Nanoseconds()/1000000)
 		}
 
 		f.tweets <- &Tweet{
