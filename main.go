@@ -18,7 +18,7 @@ import (
 )
 
 const (
-	statsdServiceName = "admin-demo-statsd"
+	statsdServiceName = "statsd-admin-demo"
 )
 
 var (
