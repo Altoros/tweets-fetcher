@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"os/signal"
@@ -14,6 +15,7 @@ import (
 	"googlemaps.github.io/maps"
 
 	"github.com/Altoros/tweets-fetcher/fetcher"
+	"github.com/Altoros/tweets-fetcher/geocoder"
 	"github.com/Altoros/tweets-fetcher/server"
 )
 
@@ -29,7 +31,6 @@ var (
 		"TWITTER_CONSUMER_SECRET",
 		"TWITTER_CONSUMER_ACCESS_TOKEN",
 		"TWITTER_CONSUMER_ACCESS_SECRET",
-		"GOOGLE_MAPS_KEY",
 	}
 )
 
@@ -59,13 +60,7 @@ func main() {
 		os.Getenv("TWITTER_CONSUMER_ACCESS_SECRET"),
 	)
 
-	googleMapsClient, err := maps.NewClient(maps.WithAPIKey(os.Getenv("GOOGLE_MAPS_KEY")))
-	if err != nil {
-		logger.Error("Failed to create google maps API client", "err", err)
-		os.Exit(1)
-	}
-
-	fetcher := fetcher.New(logger, twitterClient, statsdClient, googleMapsClient)
+	fetcher := fetcher.New(logger, twitterClient, statsdClient, geoCoder(logger))
 
 	server := server.New(logger, fetcher)
 	errChan := make(chan error)
@@ -102,8 +97,12 @@ func getloggerLvl() log.Lvl {
 func checkReqiredEnvVariables() error {
 	for _, variable := range requiredEnvVariables {
 		if os.Getenv(variable) == "" {
-			return fmt.Errorf("Env variable %s required, but is not set", variable)
+			return fmt.Errorf("Env variable %s must be set", variable)
 		}
+	}
+
+	if os.Getenv("GOOGLE_MAPS_KEY") == "" && os.Getenv("BING_MAPS_KEY") == "" {
+		return errors.New("Either GOOGLE_MAPS_KEY or BING_MAPS_KEY env variable should be set")
 	}
 
 	return nil
@@ -132,4 +131,21 @@ func twitterClient(consumerKey, consumerSecret, accessToken, accessSecret string
 	token := oauth1.NewToken(accessToken, accessSecret)
 	httpClient := config.Client(oauth1.NoContext, token)
 	return twitter.NewClient(httpClient)
+}
+
+func geoCoder(logger log.Logger) geocoder.Geocoder {
+	if os.Getenv("BING_MAPS_KEY") != "" {
+		logger.Info("Using Bing maps to geocode")
+		return geocoder.NewBing(os.Getenv("BING_MAPS_KEY"))
+	} else {
+		logger.Info("Using Google maps to geocode")
+		googleMapsClient, err := maps.NewClient(maps.WithAPIKey(os.Getenv("GOOGLE_MAPS_KEY")))
+		if err != nil {
+			logger.Error("Failed to create google maps API client", "err", err)
+			os.Exit(1)
+		}
+		return geocoder.NewGoogle(googleMapsClient)
+	}
+
+	return nil
 }

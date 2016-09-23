@@ -1,15 +1,21 @@
-package fetcher
+package geocoder
 
 import (
 	"golang.org/x/net/context"
 	"googlemaps.github.io/maps"
 )
 
-type geocoder struct {
+func NewGoogle(googleMapsClient *maps.Client) Geocoder {
+	return &googleMapsGeocoder{
+		googleMapsClient: googleMapsClient,
+	}
+}
+
+type googleMapsGeocoder struct {
 	googleMapsClient *maps.Client
 }
 
-func (g *geocoder) Country(lat, lng float64) (string, error) {
+func (g *googleMapsGeocoder) Country(lat, lng float64) (string, error) {
 	geocodeReq := maps.GeocodingRequest{
 		LatLng: &maps.LatLng{
 			Lat: lat,

@@ -8,7 +8,8 @@ import (
 	"github.com/dghubble/go-twitter/twitter"
 	log "github.com/inconshreveable/log15"
 	"github.com/quipo/statsd"
-	"googlemaps.github.io/maps"
+
+	"github.com/Altoros/tweets-fetcher/geocoder"
 )
 
 type fetcher struct {
@@ -18,7 +19,7 @@ type fetcher struct {
 	currentStream *twitter.Stream
 	tweets        chan *Tweet
 	statsdClient  statsd.Statsd
-	geocoder      *geocoder
+	geocoder      geocoder.Geocoder
 }
 
 type Fetcher interface {
@@ -28,15 +29,13 @@ type Fetcher interface {
 	CurrentQuery() string
 }
 
-func New(logger log.Logger, twitterClient *twitter.Client, statsdClient statsd.Statsd, googleMapsClient *maps.Client) Fetcher {
+func New(logger log.Logger, twitterClient *twitter.Client, statsdClient statsd.Statsd, geocoder geocoder.Geocoder) Fetcher {
 	return &fetcher{
 		logger:        logger.New("module", "fetcher"),
 		twitterClient: twitterClient,
 		tweets:        make(chan *Tweet),
 		statsdClient:  statsdClient,
-		geocoder: &geocoder{
-			googleMapsClient: googleMapsClient,
-		},
+		geocoder:      geocoder,
 	}
 }
 
