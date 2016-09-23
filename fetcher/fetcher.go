@@ -3,6 +3,7 @@ package fetcher
 import (
 	"fmt"
 	"time"
+	"unicode/utf8"
 
 	"github.com/dghubble/go-twitter/twitter"
 	log "github.com/inconshreveable/log15"
@@ -132,7 +133,7 @@ func (f *fetcher) processTweet(tweet *twitter.Tweet) {
 		if err != nil {
 			f.logger.Warn("Failed to emit metric tweetsWithLocation", "err", err)
 		}
-		err = f.statsdClient.Incr("tweetLength", int64(len(tweet.Text)))
+		err = f.statsdClient.Incr("tweetLength", int64(utf8.RuneCountInString(tweet.Text)))
 		if err != nil {
 			f.logger.Warn("Failed to emit metric tweetLength", "err", err)
 		}
