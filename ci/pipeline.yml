@@ -40,6 +40,7 @@ jobs:
         TWITTER_CONSUMER_ACCESS_TOKEN: {{twitter-consumer-access-token}}
         TWITTER_CONSUMER_ACCESS_SECRET: {{twitter-consumer-access-secret}}
         GOOGLE_MAPS_KEY: {{google-maps-key}}
+        BING_MAPS_KEY: {{bing-maps-key}}
     on_failure:
       put: failure-alert
       params:
