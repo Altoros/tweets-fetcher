@@ -19,6 +19,13 @@ For statsd metrics you should create UPS in your org/space and set name of this 
 
 Then just `cf push` this app!
 
+## Grafana dashboard
+
+[Here](grafana-dashboard/Tweets-fetcher-dashboard.json).
+
+Screenshot:
+![screenshot](grafana-dashboard/Tweets-fetcher-dashboard.png).
+
 ## Running tests
 
 ```
