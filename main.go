@@ -19,10 +19,6 @@ import (
 	"github.com/Altoros/tweets-fetcher/server"
 )
 
-const (
-	statsdServiceName = "statsd-admin-demo"
-)
-
 var (
 	defaultPort          = "8080"
 	defaultLogLevel      = log.LvlInfo
@@ -32,9 +28,15 @@ var (
 		"TWITTER_CONSUMER_ACCESS_TOKEN",
 		"TWITTER_CONSUMER_ACCESS_SECRET",
 	}
+
+	statsdServiceName = os.Getenv("CF_MONITORING_SERVICE_NAME")
 )
 
 func main() {
+	if statsdServiceName == "" {
+		statsdServiceName = "heartbeat"
+	}
+
 	logger := log.New("module", "main")
 	logger.SetHandler(log.LvlFilterHandler(getloggerLvl(), log.StreamHandler(os.Stdout, log.JsonFormat())))
 
@@ -122,8 +124,12 @@ func statsdClient(logger log.Logger) statsd.Statsd {
 
 	host := service.Credentials["host"]
 	port := service.Credentials["port"]
+	statsdPrefix := service.Credentials["statsd_prefix"]
 
-	return statsd.NewStatsdClient(fmt.Sprintf("%s:%s", host, port), fmt.Sprintf("%s.%d.", appEnv.Name, appEnv.Index))
+	addr := fmt.Sprintf("%v:%v", host, port)
+	prefix := fmt.Sprintf("%s%s.%d.", statsdPrefix, appEnv.Name, appEnv.Index)
+
+	return statsd.NewStatsdClient(addr, prefix)
 }
 
 func twitterClient(consumerKey, consumerSecret, accessToken, accessSecret string) *twitter.Client {

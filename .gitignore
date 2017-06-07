@@ -3,3 +3,4 @@
 .envrc
 ci/secrets.yml
 out/
+manifest.yml
