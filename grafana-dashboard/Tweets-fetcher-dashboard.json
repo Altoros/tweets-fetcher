@@ -14,7 +14,7 @@
       "type": "grafana",
       "id": "grafana",
       "name": "Grafana",
-      "version": "4.2.0-pre1"
+      "version": "4.4.0-pre1"
     },
     {
       "type": "panel",
@@ -84,11 +84,11 @@
           "targets": [
             {
               "refId": "A",
-              "target": "aliasByNode(stats.counters.tweets-fetcher.0.totalTweets.count, 4)"
+              "target": "aliasByNode(stats.counters.apps.*.*.tweets-fetcher.0.totalTweets.count, 7)"
             },
             {
               "refId": "B",
-              "target": "aliasByNode(stats.counters.tweets-fetcher.0.tweetsWithLocation.count, 4)"
+              "target": "aliasByNode(stats.counters.apps.*.*.tweets-fetcher.0.tweetsWithLocation.count, 7)"
             }
           ],
           "title": "Tweets Ratio",
@@ -151,10 +151,11 @@
             "show": false
           },
           "suppress": false,
+          "tableColumn": "",
           "targets": [
             {
               "refId": "A",
-              "target": "stats.counters.tweets-fetcher.0.totalTweets.rate"
+              "target": "stats.counters.apps.*.*.tweets-fetcher.0.totalTweets.rate"
             }
           ],
           "thresholds": "",
@@ -185,6 +186,8 @@
         {
           "aliasColors": {},
           "bars": false,
+          "dashLength": 10,
+          "dashes": false,
           "datasource": "${DS_GRAPHITE-ADMIN-DEMO}",
           "editable": true,
           "error": false,
@@ -209,6 +212,7 @@
           "points": false,
           "renderer": "flot",
           "seriesOverrides": [],
+          "spaceLength": 10,
           "span": 12,
           "stack": false,
           "steppedLine": false,
@@ -216,12 +220,12 @@
           "targets": [
             {
               "refId": "A",
-              "target": "aliasByNode(stats.counters.tweets-fetcher.0.totalTweets.count, 4)",
+              "target": "aliasByNode(stats.counters.apps.*.*.tweets-fetcher.0.totalTweets.count, 7)",
               "textEditor": false
             },
             {
               "refId": "B",
-              "target": "aliasByNode(stats.counters.tweets-fetcher.0.tweetsWithLocation.count, 4)",
+              "target": "aliasByNode(stats.counters.apps.*.*.tweets-fetcher.0.tweetsWithLocation.count, 7)",
               "textEditor": false
             }
           ],
@@ -237,6 +241,7 @@
           },
           "type": "graph",
           "xaxis": {
+            "buckets": null,
             "mode": "time",
             "name": null,
             "show": true,
@@ -302,7 +307,7 @@
           "targets": [
             {
               "refId": "A",
-              "target": "aliasByNode(stats.counters.tweets-fetcher.0.countries.*.count, 5)"
+              "target": "aliasByNode(stats.counters.apps.*.*.tweets-fetcher.0.countries.*.count, 8)"
             }
           ],
           "title": "Distribution by countries",
@@ -312,6 +317,8 @@
         {
           "aliasColors": {},
           "bars": false,
+          "dashLength": 10,
+          "dashes": false,
           "datasource": "${DS_GRAPHITE-ADMIN-DEMO}",
           "editable": true,
           "error": false,
@@ -336,6 +343,7 @@
           "points": false,
           "renderer": "flot",
           "seriesOverrides": [],
+          "spaceLength": 10,
           "span": 6,
           "stack": false,
           "steppedLine": false,
@@ -343,7 +351,7 @@
           "targets": [
             {
               "refId": "B",
-              "target": "alias(stats.timers.tweets-fetcher.0.googleApiRequestTime.count, 'Response time, ms')"
+              "target": "alias(stats.timers.apps.*.*.tweets-fetcher.0.googleApiRequestTime.count, 'Response time, ms')"
             }
           ],
           "thresholds": [],
@@ -358,6 +366,7 @@
           },
           "type": "graph",
           "xaxis": {
+            "buckets": null,
             "mode": "time",
             "name": null,
             "show": true,
@@ -385,6 +394,8 @@
         {
           "aliasColors": {},
           "bars": false,
+          "dashLength": 10,
+          "dashes": false,
           "datasource": "${DS_GRAPHITE-ADMIN-DEMO}",
           "editable": true,
           "error": false,
@@ -409,6 +420,7 @@
           "points": false,
           "renderer": "flot",
           "seriesOverrides": [],
+          "spaceLength": 10,
           "span": 6,
           "stack": false,
           "steppedLine": false,
@@ -416,7 +428,7 @@
           "targets": [
             {
               "refId": "B",
-              "target": "aliasByNode(stats.counters.tweets-fetcher.0.tweetLength.count, 4)",
+              "target": "aliasByNode(stats.counters.apps.*.*.tweets-fetcher.0.tweetLength.count, 7)",
               "textEditor": false
             }
           ],
@@ -432,6 +444,7 @@
           },
           "type": "graph",
           "xaxis": {
+            "buckets": null,
             "mode": "time",
             "name": null,
             "show": true,
@@ -468,7 +481,9 @@
   "schemaVersion": 14,
   "showSuppressed": false,
   "style": "dark",
-  "tags": [],
+  "tags": [
+    "User defined"
+  ],
   "templating": {
     "list": []
   },
